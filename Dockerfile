@@ -22,5 +22,4 @@ ENV PORT=10000
 
 EXPOSE 10000
 
-# 6. Run start directly inside the artifacts workspace!
-CMD ["pnpm", "-r", "--filter", "./artifacts/**", "run", "start"]
+CMD ["pnpm", "start"]
