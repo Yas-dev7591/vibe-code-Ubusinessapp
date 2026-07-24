@@ -19,4 +19,4 @@ RUN pnpm run build --if-present || true
 ENV NODE_ENV=production
 EXPOSE 3000
 
-CMD ["pnpm", "start"]
+CMD ["pnpm", "run", "dev"]
