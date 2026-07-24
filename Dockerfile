@@ -5,18 +5,22 @@ WORKDIR /app
 # 1. Install pnpm globally
 RUN npm install -g pnpm
 
-# 2. Copy all monorepo source files
+# 2. Copy all monorepo files
 COPY . .
 
-# 3. Force dependency hoisting and disable strict lockfile
+# 3. Install dependencies across workspaces
 ENV NODE_ENV=development
 RUN pnpm install --shamefully-hoist --no-frozen-lockfile
 
-# 4. Skip strict type-checking failures during build if pnpm run build fails
+# 4. Build all packages
 RUN pnpm run build --if-present || true
 
-# 5. Set production environment
+# 5. Environment configuration
 ENV NODE_ENV=production
-EXPOSE 3000
+ENV HOST=0.0.0.0
+ENV PORT=10000
 
-CMD ["pnpm", "run", "dev"]
+EXPOSE 10000
+
+# 6. Run start directly inside the artifacts workspace!
+CMD ["pnpm", "-r", "--filter", "./artifacts/**", "run", "start"]
