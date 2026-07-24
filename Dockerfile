@@ -1,26 +1,22 @@
-FROM node:18-alpine
+FROM node:20-alpine AS base
+RUN npm install -g pnpm
 
 WORKDIR /app
 
-# 1. Install pnpm globally
-RUN npm install -g pnpm
+# Copy root workspace configuration and package files
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY artifacts/ ./artifacts/
+# (Copy other workspace package folders as needed, e.g., lib/, apps/, etc.)
 
-# 2. Copy source files
+# Install all dependencies across the monorepo workspace
+RUN pnpm install
+
+# Copy the rest of the source code
 COPY . .
 
-# 3. Install dependencies across the monorepo workspace
-ENV NODE_ENV=development
-RUN pnpm install --shamefully-hoist --no-frozen-lockfile
+# Build the project
+RUN pnpm build
 
-# 4. Build workspace projects (bypass strict TS errors if any exist)
-RUN pnpm run build --if-present || true
-
-# 5. Production setup
-ENV NODE_ENV=production
-ENV HOST=0.0.0.0
-ENV PORT=10000
-
-EXPOSE 10000
-
-# 6. Start the app via root package.json start script
-CMD ["pnpm", "start"]
+# Expose port and start
+EXPOSE 3000
+CMD ["pnpm", "--dir", "artifacts/api", "run", "dev"]
