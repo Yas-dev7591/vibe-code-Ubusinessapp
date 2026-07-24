@@ -1,22 +1,19 @@
-FROM node:20-alpine AS base
-RUN npm install -g pnpm
-
+FROM node:20-alpine
 WORKDIR /app
 
-# Copy root workspace configuration and package files
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-COPY artifacts/ ./artifacts/
-# (Copy other workspace package folders as needed, e.g., lib/, apps/, etc.)
+# Copy package files first for dependency caching
+COPY package.json pnpm-lock.yaml* ./
 
-# Install all dependencies across the monorepo workspace
+# Install pnpm and dependencies
+RUN npm install -g pnpm
 RUN pnpm install
 
-# Copy the rest of the source code
+# Copy the rest of your project files
 COPY . .
 
-# Build the project
-RUN pnpm build
+# Build the project if a build script exists
+RUN pnpm run build --if-present
 
-# Expose port and start
+# Expose port and start the application
 EXPOSE 3000
-CMD ["pnpm", "--dir", "artifacts/api", "run", "dev"]
+CMD ["pnpm", "start"]
