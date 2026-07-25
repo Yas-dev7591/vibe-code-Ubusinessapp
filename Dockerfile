@@ -1,18 +1,10 @@
-FROM node:20-alpine
-WORKDIR /app
+# Copy workspace files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY lib/ ./lib/
+COPY artifacts/ ./artifacts/
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# RUN RECURSIVE INSTALL TO INSTALL SUB-PACKAGE DEPENDENCIES
+RUN pnpm install --recursive --frozen-lockfile
 
-# Copy all project files into the build container
-COPY . .
-
-# Install all workspace dependencies
-RUN pnpm install
-
-# Build the workspace project
+# NOW RUN THE BUILD
 RUN pnpm run build
-
-# Expose port and start the application
-EXPOSE 3000
-CMD ["pnpm", "start"]
