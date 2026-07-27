@@ -5,19 +5,19 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Copy dependency configs
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy dependency configs (using wildcard so optional files won't break the build)
+COPY package.json pnpm-lock.yaml* ./
 
-# Copy source code and workspace libraries
+# Copy remaining source code
 COPY . .
 
-# Install all workspace dependencies recursively
+# Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Build the application
+# Build application
 RUN pnpm run build
 
-# Expose server port
+# Expose port
 EXPOSE 5000
 
 # Start server
