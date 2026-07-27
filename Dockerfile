@@ -12,7 +12,7 @@ COPY package.json pnpm-lock.yaml* ./
 COPY . .
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Build application
 RUN pnpm run build
