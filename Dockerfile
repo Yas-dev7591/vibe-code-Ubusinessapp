@@ -1,23 +1,26 @@
-FROM node:22-alpine
+FROM node:22-slim
 
-# Install pnpm
+# Install system dependencies that PNPM and native packages need
+RUN apt-get update && apt-get install -y python3 make g++ git ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Enable PNPM
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Copy dependency configs (using wildcard so optional files won't break the build)
+# Copy package metadata
 COPY package.json pnpm-lock.yaml* ./
 
-# Copy remaining source code
+# Copy all repository source code
 COPY . .
 
-# Install dependencies
-RUN pnpm install --no-frozen-lockfile
+# Install dependencies with verbose logs so we can see exact errors if it fails
+RUN pnpm install --no-frozen-lockfile --loglevel=info
 
 # Build application
 RUN pnpm run build
 
-# Expose port
+# Expose server port
 EXPOSE 5000
 
 # Start server
