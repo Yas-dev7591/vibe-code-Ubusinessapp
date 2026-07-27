@@ -12,7 +12,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY . .
 
 # Install all workspace dependencies recursively
-RUN pnpm install --recursive --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # Build the application
 RUN pnpm run build
